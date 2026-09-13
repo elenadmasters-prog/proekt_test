@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Идейник — генератор идей для постов</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a2421;
+      --muted: #4a5c56;
+      --bg: #e8f0ec;
+      --bg-deep: #d2e3db;
+      --panel: rgba(255, 255, 255, 0.55);
+      --accent: #0d7a6f;
+      --accent-hot: #e85d04;
+      --line: rgba(26, 36, 33, 0.12);
+      --shadow: 0 18px 50px rgba(26, 36, 33, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Manrope", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 80% 50% at 10% -10%, #b8e0d2 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, #f4d6b8 0%, transparent 45%),
+        linear-gradient(165deg, var(--bg) 0%, var(--bg-deep) 100%);
+      background-attachment: fixed;
+    }
+
+    .wrap {
+      width: min(720px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 4.5rem 0 5rem;
+    }
+
+    .brand {
+      font-family: "Syne", sans-serif;
+      font-weight: 800;
+      font-size: clamp(3rem, 10vw, 4.75rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      margin-bottom: 0.85rem;
+      animation: rise 0.7s ease both;
+    }
+
+    .lead {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 28ch;
+      line-height: 1.5;
+      margin-bottom: 2.75rem;
+      animation: rise 0.7s ease 0.08s both;
+    }
+
+    .generator {
+      padding: 1.5rem 0 2.5rem;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 2.5rem;
+      animation: rise 0.7s ease 0.16s both;
+    }
+
+    .generator h2 {
+      font-family: "Syne", sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .idea-box {
+      min-height: 4.5rem;
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .idea-box p {
+      font-size: clamp(1.25rem, 3.5vw, 1.55rem);
+      font-weight: 600;
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+    }
+
+    .idea-box p.is-fresh {
+      animation: pop 0.35s ease;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #fff;
+      background: var(--accent);
+      padding: 0.85rem 1.35rem;
+      border-radius: 4px;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .btn:hover {
+      background: #0a635a;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .menu {
+      list-style: none;
+      display: grid;
+      gap: 0;
+      animation: rise 0.7s ease 0.24s both;
+    }
+
+    .menu li {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .menu button {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      color: inherit;
+      padding: 1.15rem 0.15rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.85rem;
+      align-items: baseline;
+      transition: color 0.2s ease;
+    }
+
+    .menu button:hover,
+    .menu button[aria-expanded="true"] {
+      color: var(--accent);
+    }
+
+    .num {
+      font-family: "Syne", sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--accent-hot);
+    }
+
+    .label {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .chev {
+      font-size: 1.1rem;
+      transition: transform 0.25s ease;
+    }
+
+    .menu button[aria-expanded="true"] .chev {
+      transform: rotate(90deg);
+    }
+
+    .panel {
+      display: none;
+      padding: 0 0 1.35rem 2.1rem;
+    }
+
+    .panel.open {
+      display: block;
+      animation: rise 0.3s ease;
+    }
+
+    .panel ul,
+    .panel ol {
+      padding-left: 1.1rem;
+      color: var(--muted);
+      display: grid;
+      gap: 0.55rem;
+      line-height: 1.45;
+    }
+
+    .panel li::marker {
+      color: var(--accent);
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pop {
+      from {
+        opacity: 0.2;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .wrap {
+        padding-top: 3rem;
+      }
+
+      .panel {
+        padding-left: 0.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1 class="brand">Идейник</h1>
+    <p class="lead">Быстрые идеи для постов, сторис и плана на день.</p>
+
+    <section class="generator" aria-labelledby="gen-title">
+      <h2 id="gen-title">Генератор идей для постов</h2>
+      <div class="idea-box">
+        <p id="idea">Нажмите кнопку — получите свежую идею поста</p>
+      </div>
+      <button class="btn" type="button" id="generate">Сгенерировать идею</button>
+    </section>
+
+    <ul class="menu">
+      <li>
+        <button type="button" aria-expanded="false" aria-controls="panel-posts" data-panel="panel-posts">
+          <span class="num">01</span>
+          <span class="label">5 идей постов для экспертов</span>
+          <span class="chev" aria-hidden="true">→</span>
+        </button>
+        <div class="panel" id="panel-posts" role="region">
+          <ol>
+            <li>Разберите одну ошибку новичков и покажите, как исправить её за 10 минут.</li>
+            <li>Сделайте мини-кейс: «было → сделали → стало» с цифрами результата.</li>
+            <li>Ответьте на 3 самых частых вопроса из личных сообщений.</li>
+            <li>Поделитесь чек-листом из 7 пунктов для вашей ниши.</li>
+            <li>Сравните два подхода: что выбрать в 2026 году и почему.</li>
+          </ol>
+        </div>
+      </li>
+      <li>
+        <button type="button" aria-expanded="false" aria-controls="panel-stories" data-panel="panel-stories">
+          <span class="num">02</span>
+          <span class="label">3 идеи сторис на сегодня</span>
+          <span class="chev" aria-hidden="true">→</span>
+        </button>
+        <div class="panel" id="panel-stories" role="region">
+          <ol>
+            <li>Утренний вопрос аудитории: «Что мешает вам сегодня?» + стикер опроса.</li>
+            <li>Закулисье работы: 15 секунд процесса и один полезный совет.</li>
+            <li>Вечерний итог дня: 1 победа, 1 урок, 1 план на завтра.</li>
+          </ol>
+        </div>
+      </li>
+      <li>
+        <button type="button" aria-expanded="false" aria-controls="panel-plan" data-panel="panel-plan">
+          <span class="num">03</span>
+          <span class="label">Контент план на сегодня</span>
+          <span class="chev" aria-hidden="true">→</span>
+        </button>
+        <div class="panel" id="panel-plan" role="region">
+          <ul>
+            <li><strong>Утро:</strong> сторис-опрос + тизер вечернего поста.</li>
+            <li><strong>День:</strong> экспертный пост с чек-листом или мини-кейсом.</li>
+            <li><strong>Вечер:</strong> сторис с итогом дня и призывом сохранить пост.</li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </main>
+
+  <script>
+    const ideas = [
+      "Покажите «миф vs реальность» в вашей нише на одном примере.",
+      "Разберите чужой пост: что сделано хорошо и что усилили бы вы.",
+      "Соберите гайд «с нуля за вечер» по одной узкой задаче.",
+      "Расскажите историю клиента без воды: проблема, шаг, результат.",
+      "Сделайте пост-шаблон: заполните пропуски и получите готовый текст.",
+      "Объясните сложный термин простыми словами и одной аналогией.",
+      "Покажите свой рабочий процесс в 5 коротких шагах.",
+      "Напишите пост «что я больше не делаю» и почему это экономит время.",
+      "Сравните инструмент/метод А и Б: для кого что лучше.",
+      "Дайте 3 быстрых действия, которые можно сделать прямо сейчас.",
+    ];
+
+    const ideaEl = document.getElementById("idea");
+    const generateBtn = document.getElementById("generate");
+    let lastIndex = -1;
+
+    function nextIdea() {
+      let index = Math.floor(Math.random() * ideas.length);
+      if (ideas.length > 1 && index === lastIndex) {
+        index = (index + 1) % ideas.length;
+      }
+      lastIndex = index;
+      ideaEl.classList.remove("is-fresh");
+      void ideaEl.offsetWidth;
+      ideaEl.textContent = ideas[index];
+      ideaEl.classList.add("is-fresh");
+    }
+
+    generateBtn.addEventListener("click", nextIdea);
+
+    document.querySelectorAll(".menu button[data-panel]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const panel = document.getElementById(btn.dataset.panel);
+        const isOpen = btn.getAttribute("aria-expanded") === "true";
+
+        document.querySelectorAll(".menu button[data-panel]").forEach((other) => {
+          other.setAttribute("aria-expanded", "false");
+          document.getElementById(other.dataset.panel).classList.remove("open");
+        });
+
+        if (!isOpen) {
+          btn.setAttribute("aria-expanded", "true");
+          panel.classList.add("open");
+        }
+      });
+    });
+  </script>
+</body>
+</html>
